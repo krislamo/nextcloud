@@ -1,0 +1,29 @@
+version: '3.8'
+
+networks:
+  traefik:
+    external: true
+
+services:
+  nextcloud:
+    image: "${IMAGE:-nextcloud}:${VERSION:-latest}"
+    container_name: "${NAME:-nextcloud}"
+    environment:
+      PHP_MEMORY_LIMIT: "${PHP_MEMORY_LIMIT:-1024M}"
+    labels:
+      - "traefik.http.routers.${ROUTER:-nextcloud}.rule=Host(`${DOMAIN:-cloud.local.krislamo.org}`)"
+      - "traefik.http.routers.${ROUTER:-nextcloud}.entrypoints=${ENTRYPOINT:-web}"
+      - "traefik.http.routers.${ROUTER:-nextcloud}.tls=${ENABLE_TLS:-false}"
+      - "traefik.http.routers.${ROUTER:-nextcloud}.middlewares=${MIDDLEWARES:-nextcloud-webdav}"
+      - "traefik.http.services.${ROUTER:-nextcloud}.loadbalancer.server.port=${CONTAINER_PORT:-80}"
+      - "traefik.http.middlewares.${ROUTER:-nextcloud}-webdav.redirectregex.regex=https://(.*)/.well-known/(card|cal)dav"
+      - "traefik.http.middlewares.${ROUTER:-nextcloud}-webdav.redirectregex.replacement=https://$${1}/remote.php/dav/"
+      - "traefik.http.middlewares.${ROUTER:-nextcloud}-webdav.redirectregex.permanent=true"
+      - "traefik.docker.network=${NETWORK:-traefik}"
+      - "traefik.enable=${TRAEFIK_ENABLE:-true}"
+    networks:
+      - "${NETWORK:-traefik}"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - "${DATA:?}:/var/www/html"
