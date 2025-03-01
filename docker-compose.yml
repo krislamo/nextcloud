@@ -1,3 +1,6 @@
+volumes:
+  redis:
+
 networks:
   traefik:
     external: true
@@ -25,3 +28,9 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - "${DATA:?}:/var/www/html"
+  redis:
+    image: "redis:${REDIS_VERSION:-latest}"
+    container_name: "${NAME:-nextcloud}-redis"
+    command: redis-server --requirepass ${REDIS_PASSWORD:?}
+    volumes:
+      - redis:/data
