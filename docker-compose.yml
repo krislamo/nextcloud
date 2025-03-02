@@ -4,6 +4,8 @@ volumes:
 networks:
   traefik:
     external: true
+  internal:
+    internal: true
 
 services:
   nextcloud:
@@ -24,6 +26,7 @@ services:
       - "traefik.docker.network=${NETWORK:-traefik}"
       - "traefik.enable=${ENABLE:-true}"
     networks:
+      - internal
       - "${NETWORK:-traefik}"
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -33,5 +36,7 @@ services:
     image: "redis:${REDIS_VERSION:-latest}"
     container_name: "${NAME:-nextcloud}-redis"
     command: redis-server --requirepass ${REDIS_PASSWORD:?}
+    networks:
+      - internal
     volumes:
       - redis:/data
