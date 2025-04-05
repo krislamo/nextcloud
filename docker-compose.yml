@@ -12,6 +12,7 @@ services:
     image: "${IMAGE:-nextcloud}:${VERSION:-latest}"
     container_name: "${NAME:-nextcloud}"
     mem_limit: ${MEM_LIMIT:-2g}
+    cpus: ${CPUS:-1}
     environment:
       PHP_MEMORY_LIMIT: "${PHP_MEMORY_LIMIT:-1024M}"
     labels:
